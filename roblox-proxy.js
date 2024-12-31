@@ -1,36 +1,34 @@
+const express = require('express');
 const fetch = require('node-fetch');
+const app = express();
 
-module.exports = async (req, res) => {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed. Use POST.' });
-    }
+app.get('/api/avatar', async (req, res) => {
+    const { nickname } = req.query;
 
-    const { usernames } = req.body;
-
-    if (!usernames || !Array.isArray(usernames)) {
-        return res.status(400).json({ error: 'Invalid request. Provide an array of usernames.' });
+    if (!nickname) {
+        return res.status(400).json({ error: 'Никнейм обязателен' });
     }
 
     try {
-        const robloxResponse = await fetch('https://users.roblox.com/v1/usernames/users', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ usernames }),
-        });
+        const response = await fetch(`https://users.roblox.com/v1/users/search?keyword=${nickname}`);
+        const data = await response.json();
 
-        if (!robloxResponse.ok) {
-            return res.status(robloxResponse.status).json({
-                error: 'Error fetching data from Roblox API',
-                details: await robloxResponse.text(),
-            });
+        if (!data.data || !data.data.length) {
+            return res.status(404).json({ error: 'Пользователь не найден' });
         }
 
-        const data = await robloxResponse.json();
-        res.status(200).json(data);
+        const userId = data.data[0].id;
+        const avatarResponse = await fetch(`https://thumbnails.roblox.com/v1/users/avatar?userIds=${userId}&size=150x150&format=Png&isCircular=false`);
+        const avatarData = await avatarResponse.json();
+
+        if (!avatarData.data || !avatarData.data.length) {
+            return res.status(404).json({ error: 'Аватарка не найдена' });
+        }
+
+        res.json({ avatarUrl: avatarData.data[0].imageUrl });
     } catch (error) {
-        console.error('Error fetching data:', error);
-        res.status(500).json({ error: 'Internal server error.' });
+        res.status(500).json({ error: 'Ошибка сервера' });
     }
-};
+});
+
+module.exports = app;
