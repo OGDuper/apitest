@@ -1,16 +1,18 @@
-// Код API-сервера для Vercel с корректной обработкой CORS
 const express = require('express');
 const fetch = require('node-fetch');
 const cors = require('cors');
 
 const app = express();
 
-// Настройка CORS с использованием библиотеки cors
+// Настройка CORS
 app.use(cors({
-    origin: '*', // Укажите конкретный домен, если необходимо, например: 'https://rbxmarket.ru'
-    methods: ['GET', 'POST', 'OPTIONS'], // Разрешенные методы
-    allowedHeaders: ['Content-Type', 'Authorization'] // Разрешенные заголовки
+    origin: 'https://rbxmarket.ru', // Укажите точный домен
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
 }));
+
+app.options('*', cors());
 
 app.get('/api/avatar', async (req, res) => {
     const { nickname } = req.query;
