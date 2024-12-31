@@ -7,12 +7,9 @@ const app = express();
 // Настройка CORS
 app.use(cors({
     origin: 'https://rbxmarket.ru', // Укажите точный домен
-    methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true
+    methods: ['GET', 'OPTIONS'],
+    allowedHeaders: ['Content-Type']
 }));
-
-app.options('*', cors());
 
 app.get('/api/avatar', async (req, res) => {
     const { nickname } = req.query;
