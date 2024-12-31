@@ -1,23 +1,16 @@
+// Код API-сервера для Vercel с корректной обработкой CORS
 const express = require('express');
 const fetch = require('node-fetch');
+const cors = require('cors');
+
 const app = express();
 
-app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-    if (req.method === 'OPTIONS') {
-        return res.sendStatus(204);
-    }
-    next();
-});
-
-app.options('*', (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-    res.sendStatus(200);
-});
+// Настройка CORS с использованием библиотеки cors
+app.use(cors({
+    origin: '*', // Укажите конкретный домен, если необходимо, например: 'https://rbxmarket.ru'
+    methods: ['GET', 'POST', 'OPTIONS'], // Разрешенные методы
+    allowedHeaders: ['Content-Type', 'Authorization'] // Разрешенные заголовки
+}));
 
 app.get('/api/avatar', async (req, res) => {
     const { nickname } = req.query;
